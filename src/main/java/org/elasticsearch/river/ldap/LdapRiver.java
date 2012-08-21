@@ -3,7 +3,6 @@ package org.elasticsearch.river.ldap;
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -69,6 +68,7 @@ public class LdapRiver extends AbstractRiverComponent implements River {
     private final String filter;
     private final String baseDn;
     private final String[] attributes;
+    private final List<String> attributesList;
     private final String[] fields;
     private final String scope;
 
@@ -105,11 +105,14 @@ public class LdapRiver extends AbstractRiverComponent implements River {
             if(XContentMapValues.isArray(ldapSettings.get("attributes"))) {
                 List<Object> values = (List<Object>) ldapSettings.get("attributes");
                 attributes = new String[values.size()];
+                attributesList = new ArrayList<String>(values.size());
                 for (int i = 0; i < attributes.length; i++) {
                     attributes[i] = values.get(i).toString();
+                    attributesList.add(attributes[i]);
                 }
             } else {
                 attributes = null;
+                attributesList = new ArrayList<String>();
             }
             if(XContentMapValues.isArray(ldapSettings.get("fields"))) {
                 List<Object> values = (List<Object>) ldapSettings.get("fields");
@@ -131,14 +134,15 @@ public class LdapRiver extends AbstractRiverComponent implements River {
             filter = null;
             baseDn = null;
             attributes = null;
+            attributesList = new ArrayList<String>();
             fields = null;
             scope = null;
             poll = TimeValue.timeValueMinutes(60);
         }
         if (settings.settings().containsKey("index")) {
             Map<String, Object> indexSettings = (Map<String, Object>) settings.settings().get("index");
-            indexName = XContentMapValues.nodeStringValue(indexSettings.get("index"), "jdbc");
-            typeName = XContentMapValues.nodeStringValue(indexSettings.get("type"), "jdbc");
+            indexName = XContentMapValues.nodeStringValue(indexSettings.get("index"), "ldap");
+            typeName = XContentMapValues.nodeStringValue(indexSettings.get("type"), "ldap");
             bulkSize = XContentMapValues.nodeIntegerValue(indexSettings.get("bulk_size"), 100);
             if (indexSettings.containsKey("bulk_timeout")) {
                 bulkTimeout = TimeValue.parseTimeValue(XContentMapValues.nodeStringValue(indexSettings.get("bulk_timeout"), "60s"),
@@ -198,9 +202,13 @@ public class LdapRiver extends AbstractRiverComponent implements River {
 
                 try {
                     environment.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-                    environment.put(Context.SECURITY_AUTHENTICATION, "simple");
-                    environment.put(Context.SECURITY_PRINCIPAL, userDn);
-                    environment.put(Context.SECURITY_CREDENTIALS, credentials);
+					if (userDn != null && !"".equals(userDn)) {
+                        environment.put(Context.SECURITY_AUTHENTICATION, "simple");
+                        environment.put(Context.SECURITY_PRINCIPAL, userDn);
+                        environment.put(Context.SECURITY_CREDENTIALS, credentials);
+                    } else {
+                        environment.put(Context.SECURITY_AUTHENTICATION, "none");
+                    }
 
                     if (ssl) {
                         environment.put(Context.PROVIDER_URL, "ldaps://" + host + ":" + port);
@@ -307,7 +315,7 @@ public class LdapRiver extends AbstractRiverComponent implements River {
         
         private String resolveFieldName(String id) {
             if ((fields != null) && (fields.length > 0)) {
-                int i = Arrays.binarySearch(attributes, id);
+                int i = attributesList.indexOf(id);
                 if ((i >= 0) && (i < fields.length)) {
                     return fields[i];
                 }

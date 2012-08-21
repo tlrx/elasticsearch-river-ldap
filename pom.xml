@@ -56,13 +56,6 @@
 
 		<dependency>
 			<groupId>org.apache.directory.server</groupId>
-			<artifactId>apacheds-all</artifactId>
-			<version>1.5.7</version>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.directory.server</groupId>
 			<artifactId>apacheds-server-integ</artifactId>
 			<version>1.5.7</version>
 			<scope>test</scope>
