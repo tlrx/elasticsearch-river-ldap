@@ -3,7 +3,7 @@
 
 	<groupId>fr.tlrx.elasticsearch</groupId>
 	<artifactId>elasticsearch-river-ldap</artifactId>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>0.0.1-SNAPSHOT</version>
 	<name>LDAP River for Elasticsearch</name>
 
 	<properties>
@@ -140,5 +140,13 @@
 			<url>https://oss.sonatype.org/content/groups/public/</url>
 		</repository>
 	</repositories>
+	
+	<distributionManagement>
+		<repository>
+			<id>github.repo</id>
+			<name>Local Temporary Repository</name>
+			<url>file:///tmp/github/repository/</url>
+		</repository>
+	</distributionManagement>
 </project>
 
