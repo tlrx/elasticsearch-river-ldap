@@ -1,0 +1,88 @@
+h1. LDAP River Plugin for Elasticsearch
+
+This plugin provides a new "River":http://www.elasticsearch.org/guide/reference/river/ type that can be used to retrieve data from LDAP servers for indexing into Elasticsearch.
+
+
+h2. Versions
+
+|_. LDAP River Plugin	|_. ElasticSearch	|
+|  master (0.0.1)   	|  master (0.19.8)	|
+
+
+h2. Installation
+
+Type the command in your favorite shell :
+
+<pre>
+$ bin\plugin -install tlrx/elasticsearch-river-ldap/0.0.1
+</pre>
+
+Elasticsearch automatically install the plugin:
+
+<pre>
+-> Installing tlrx/elasticsearch-river-ldap/0.0.3...
+Trying https://github.com/downloads/tlrxelasticsearch-river-ldap/elasticsearch-river-ldap-0.0.1.zip...
+Downloading ..........DONE
+Installed elasticsearch-river-ldap
+</pre>
+
+
+h2. Configuration
+
+To create a new LDAP river:
+
+<pre>curl -XPUT 'localhost:9200/_river/my_ldap_river/_meta' -d '{
+	    "type" : "ldap",
+	    "ldap" : {
+	        "host" : "ldap.example.com",
+	        "port" : "389",
+	        "ssl"  : false,
+	        "userDn" : "tanguy",
+	        "credentials" : "secret",
+	        "baseDn" : "ou=users,ou=system",
+	        "filter" : "(objectClass=person)",
+	        "scope" : "subtree",
+	        "attributes" : [
+			"sn", 
+			"cn", 
+			"memberOf"
+		],
+	        "fields" : [
+			"_id", 
+			"name", 
+			"groups"
+		],
+	        "poll" : 60000,
+	    },
+	    "index" : {
+		"index" : "server0",
+		"type"	: "person"
+	    }
+	}'
+</pre>
+
+*attributes* and *fields* options are both array of strings. While the first is used to retrieve object attributes from the LDAP, the second will be used to rename the attributes and index them under a given field name.
+
+In this example, the documents will be indexed as "person" document in the index "server0":
+	- the value of the LDAP attribute "sn" will be indexed as the document's id 
+	- the value of the LDAP attribute "cn" will be indexed in a field called "name"
+	- the values of the LDAP attribute "memberOf" will be indexed in a field called "groups"
+
+The following options can be configured:
+
+|_. Option	|_.Value type	|_. 		 									|
+|   host	| _string_     	|     Host address of the LDAP server     						|
+|   port	| _number_	|     Port number used to connect to the LDAP server (default: 389)			|
+|   ssl		| _boolean_	|     Set it to *true* if SSL and LDAPS must be used  to connect to the LDAP server	|
+|   userDn	| _string_     	|     User Distingushed Name (DN) used to authenticate against the LDAP server. If empty or null, no authentication will be performed.|
+|   credentials	| _string_     	|     User password used to authenticate against the LDAP server.			|
+|   baseDn	| _string_     	|     Base DN used to search for objects						|
+|   filter	| _string_     	|     LDAP search filter used to search objects						|
+|   scope	| _string_     	|     Scope of the search filter, can be *onelevel*, *object* or *subtree* (default)	|
+|   attributes	| array of _string_ |    LDAP attributes names to retrieve						|
+|   fields	| array of _string_ |    Field names of the previous LDAP attributes. This array must have the same size as *attributes* array. *_id* field can be used to configure the document's id.|
+|   index	| _string_     	|     Index name where the documents will be indexed |
+|   type	| _string_     	|     Type name of the documents |
+
+
+Thanks to Jörg Prante for the boilerplate code that comes from the nice "JDBC River Plugin":https://github.com/jprante/elasticsearch-river-jdbc.
