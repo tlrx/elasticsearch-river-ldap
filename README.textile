@@ -6,7 +6,8 @@ This plugin provides a new "River":http://www.elasticsearch.org/guide/reference/
 h2. Versions
 
 |_. LDAP River Plugin	|_. ElasticSearch	|
-|  master (0.0.1)   	|  master (0.19.8)	|
+|  master (0.0.2)   	|  0.90.2	|
+|  0.0.1   	|  master (0.19.8)	|
 
 
 h2. Installation
@@ -14,14 +15,14 @@ h2. Installation
 Type the command in your favorite shell :
 
 <pre>
-$ bin\plugin -install tlrx/elasticsearch-river-ldap/0.0.1
+$ bin\plugin -install tlrx/elasticsearch-river-ldap/0.0.2
 </pre>
 
 Elasticsearch automatically install the plugin:
 
 <pre>
--> Installing tlrx/elasticsearch-river-ldap/0.0.3...
-Trying https://github.com/downloads/tlrxelasticsearch-river-ldap/elasticsearch-river-ldap-0.0.1.zip...
+-> Installing tlrx/elasticsearch-river-ldap/0.0.2...
+Trying https://github.com/downloads/tlrxelasticsearch-river-ldap/elasticsearch-river-ldap-0.0.2.zip...
 Downloading ..........DONE
 Installed elasticsearch-river-ldap
 </pre>
