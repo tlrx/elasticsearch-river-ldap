@@ -114,6 +114,7 @@ import org.junit.runner.RunWith;
         "ref: ldap://localhost:10389/uid=clint,ou=users,ou=system",
         "ref: ldap://foo:10389/uid=clint,ou=users,ou=system",
         "ref: ldap://bar:10389/uid=clint,ou=users,ou=system" })
+
 public class LdapRiverTest extends AbstractLdapTestUnit {
 	
 	Node node = null;
@@ -165,10 +166,10 @@ public class LdapRiverTest extends AbstractLdapTestUnit {
 		
 		// 4 people expected
 		assertEquals(4L, client.prepareCount("ldapserver0").setTypes("person").execute().actionGet().getCount());
-		assertEquals(3L, client.prepareSearch("ldapserver0").setTypes("person").setQuery(QueryBuilders.fieldQuery("groups", "uidObject")).execute().actionGet().getHits().totalHits());
+		assertEquals(3L, client.prepareSearch("ldapserver0").setTypes("person").setQuery(QueryBuilders.matchQuery("groups", "uidObject")).execute().actionGet().getHits().totalHits());
 				
 		// But Clint is definitley unique
-		assertEquals(1L, client.prepareSearch("ldapserver0").setTypes("person").setQuery(QueryBuilders.fieldQuery("name", "clint")).execute().actionGet().getHits().totalHits());
+		assertEquals(1L, client.prepareSearch("ldapserver0").setTypes("person").setQuery(QueryBuilders.matchQuery("name", "clint")).execute().actionGet().getHits().totalHits());
 
 		assertEquals(1L, client.prepareSearch("ldapserver0").setTypes("person").setQuery(QueryBuilders.queryString("woo")).execute().actionGet().getHits().totalHits());
 		assertEquals(2, client.prepareMultiGet().add("ldapserver0", "person", "christopher").add("ldapserver0", "person", "john").execute().actionGet().getResponses().length);
